@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { registerUser } from '../services/authApi'
 
 type FormState = {
@@ -18,6 +18,7 @@ const initialFormState: FormState = {
 }
 
 export default function RegisterPage() {
+  const navigate = useNavigate()
   const [formState, setFormState] = useState<FormState>(initialFormState)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -50,6 +51,11 @@ export default function RegisterPage() {
         email: formState.email,
         password: formState.password,
       })
+
+      if (result.session) {
+        navigate('/dashboard', { replace: true })
+        return
+      }
 
       setSuccessMessage(result.message ?? 'Registration successful. You can sign in now.')
       setFormState(initialFormState)

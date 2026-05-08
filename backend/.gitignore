@@ -1,0 +1,59 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.o
+*.so
+*.dylib
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# IDEs
+.vs/
+.idea/
+*.swp
+*.swo
+*~
+
+# User-specific files
+*.user
+*.suo
+*.rvt
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Rider
+.idea/
+*.sln.iml
+out/
+
+# Visual Studio
+.vs/
+.vscode/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Dependencies
+node_modules/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp

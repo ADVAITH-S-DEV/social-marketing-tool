@@ -22,3 +22,20 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# .NET / C# build output
+backend/bin/
+backend/obj/
+backend/*.csproj.user
+backend/.vs/
+backend/.vscode/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+
+# Environment files
+.env
+.env.local
+.env.*.local
+

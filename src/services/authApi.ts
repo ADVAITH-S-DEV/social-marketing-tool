@@ -22,6 +22,7 @@ export async function loginUser(payload: LoginPayload) {
   }
 
   return {
+    session: data.session,
     token: data.session?.access_token,
     message: 'Login successful.',
     user: data.user,
@@ -46,6 +47,7 @@ export async function registerUser(payload: RegisterPayload) {
   const requiresEmailVerification = !data.session
 
   return {
+    session: data.session,
     message: requiresEmailVerification
       ? 'Registration successful. Please verify your email before login.'
       : 'Registration successful. You can sign in now.',

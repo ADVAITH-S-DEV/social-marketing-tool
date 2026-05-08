@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { loginUser } from '../services/authApi'
 
 type FormState = {
@@ -14,15 +14,14 @@ const initialFormState: FormState = {
 }
 
 export default function LoginPage() {
+  const navigate = useNavigate()
   const [formState, setFormState] = useState<FormState>(initialFormState)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setErrorMessage('')
-    setSuccessMessage('')
 
     if (!formState.email || !formState.password) {
       setErrorMessage('Please fill in all required fields.')
@@ -33,11 +32,12 @@ export default function LoginPage() {
       setIsSubmitting(true)
       const result = await loginUser(formState)
 
-      if (result.token) {
-        localStorage.setItem('auth_token', result.token)
+      if (result.session) {
+        navigate('/dashboard', { replace: true })
+        return
       }
 
-      setSuccessMessage(result.message ?? 'Login successful.')
+      navigate('/dashboard', { replace: true })
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Login failed. Please try again.'
@@ -98,10 +98,6 @@ export default function LoginPage() {
           {errorMessage ? (
             <p className="auth-message auth-message-error">{errorMessage}</p>
           ) : null}
-          {successMessage ? (
-            <p className="auth-message auth-message-success">{successMessage}</p>
-          ) : null}
-
           <button className="auth-button" type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Signing in...' : 'Sign In'}
           </button>
