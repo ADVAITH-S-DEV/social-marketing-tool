@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<SocialMarketingApi.Services.PlatformValidationService>();
 
 // Add database context
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")

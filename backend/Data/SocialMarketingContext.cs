@@ -36,7 +36,6 @@ namespace SocialMarketingApi.Data
                 entity.Property(e => e.TokenExpiresAt).HasColumnName("token_expires_at");
                 entity.Property(e => e.IsConnected).HasColumnName("is_connected");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
-                entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
             });
         }
     }

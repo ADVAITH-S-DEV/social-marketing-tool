@@ -164,3 +164,112 @@ export async function signOutUser() {
     throw new Error(error.message)
   }
 }
+
+export async function connectPlatform(userId: string, platform: SupportedPlatform, token: string, refreshToken?: string) {
+  const { error } = await supabase.from('platform_accounts').upsert({
+    user_id: userId,
+    platform_name: platform,
+    access_token: token,
+    refresh_token: refreshToken || null,
+    is_connected: true,
+  }, {
+    onConflict: 'user_id,platform_name'
+  })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+}
+
+export async function disconnectPlatform(connectionId: string) {
+  const { error } = await supabase.from('platform_accounts').delete()
+    .eq('id', connectionId)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+}
+
+export async function exchangeOAuthCode(userId: string, platform: SupportedPlatform, code: string, clientId: string, clientSecret: string, redirectUri: string): Promise<string> {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+  
+  const session = await supabase.auth.getSession()
+  const token = session.data.session?.access_token
+
+  if (!token) {
+    throw new Error('No active session')
+  }
+
+  try {
+    const response = await fetch(`${backendUrl}/api/platformconnections/oauth-exchange`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        userId,
+        platform,
+        code,
+        clientId,
+        clientSecret,
+        redirectUri
+      }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to exchange OAuth code')
+    }
+
+    const result = await response.json()
+    return result.message || `Connected to ${platform}`
+  } catch (error) {
+    throw new Error(`OAuth Exchange failed: ${error instanceof Error ? error.message : String(error)}`)
+  }
+}
+
+export async function publishPostToPlatform(userId: string, postId: string, platform: SupportedPlatform, content: string): Promise<void> {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+  
+  const session = await supabase.auth.getSession()
+  const token = session.data.session?.access_token
+
+  if (!token) {
+    throw new Error('No active session')
+  }
+
+  // 1. Send publish request to .NET backend
+  const response = await fetch(`${backendUrl}/api/posts/publish`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      userId,
+      postId,
+      platform,
+      content
+    }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    const detailedMessage = errorData.details ? `${errorData.error} - ${errorData.details}` : errorData.error || 'Failed to publish post'
+
+    // Update target status to failed
+    await supabase.from('post_platform_targets')
+      .update({ status: 'failed', error_message: detailedMessage })
+      .eq('post_id', postId)
+      .eq('platform_name', platform)
+      
+    throw new Error(detailedMessage)
+  }
+
+  // 2. Update status in Supabase to 'published'
+  await supabase.from('post_platform_targets')
+    .update({ status: 'published', published_at: new Date().toISOString(), error_message: null })
+    .eq('post_id', postId)
+    .eq('platform_name', platform)
+}

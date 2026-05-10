@@ -12,6 +12,5 @@ namespace SocialMarketingApi.Models
         public DateTime? TokenExpiresAt { get; set; }
         public bool IsConnected { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
     }
 }

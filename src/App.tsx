@@ -5,6 +5,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import RegisterPage from './pages/RegisterPage'
+import OAuthCallbackPage from './pages/OAuthCallbackPage'
 import { supabase } from './services/supabaseClient'
 
 function LoadingRoute() {
@@ -102,6 +103,14 @@ function App() {
         element={
           <ProtectedRoute>
             <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/oauth/callback"
+        element={
+          <ProtectedRoute>
+            <OAuthCallbackPage />
           </ProtectedRoute>
         }
       />
